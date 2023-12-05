@@ -74,7 +74,7 @@ class EventListener {
         }
         data.split("\n").forEach((line) => {
             this.#sendRaw(`data: ${line.trimEnd()}\r\n`);
-        })
+        });
         this.#sendRaw("\r\n");
     }
 }
@@ -97,7 +97,8 @@ const unregisterListener = (uid) => {
  */
 export const startListen = (uid) => {
     if (listeners.has(uid)) {
-        return undefined;
+        listeners.get(uid).close();
+        listeners.delete(uid);
     }
     const lst = new EventListener(uid);
     listeners.set(uid, lst);

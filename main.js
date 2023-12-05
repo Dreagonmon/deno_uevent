@@ -1,6 +1,6 @@
 import { startListen, pingListener, emitEvent, startKeepliveTask } from "./listeners.js";
 
-const PORT = 8083;
+const PORT = 18969;
 const FIELD_CONTENT_MAX_LENGTH = 16384;
 
 await Deno.permissions.request({ name: "net", host: `0.0.0.0:${PORT}` });
