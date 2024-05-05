@@ -36,7 +36,7 @@ const handler = async (req, _) => {
     if (req.method.toUpperCase() === "POST") {
         // const body = await req.json();
         if (path.startsWith("/ping/")) {
-            const uid = path.substring("/listen/".length);
+            const uid = path.substring("/ping/".length);
             if (pingListener(uid)) {
                 return response(200);
             }
