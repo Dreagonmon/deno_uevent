@@ -1,17 +1,11 @@
 const encoder = new TextEncoder();
 
 class EventListener {
-    /** @type {string} */
-    #id = "";
-    /** @type {ReadableStream | undefined} */
-    #stream = undefined;
-    /** @type {ReadableStreamDefaultController} */
-    #controller = undefined;
+    #id: string = "";
+    #stream: ReadableStream | undefined = undefined;
+    #controller: ReadableStreamDefaultController | undefined = undefined;
 
-    /**
-     * @param {string} id 
-     */
-    constructor (id) {
+    constructor (id: string) {
         this.#id = id;
     }
 
@@ -19,10 +13,7 @@ class EventListener {
         return this.#id;
     }
 
-    /**
-     * @param {(() => void) | (() => Promise<void>)} onClose 
-     */
-    makeResponse (onClose) {
+    makeResponse (onClose: (() => void) | (() => Promise<void>)) {
         this.#stream = new ReadableStream({
             start: (ctl) => {
                 this.#controller = ctl;
@@ -43,10 +34,7 @@ class EventListener {
         });
     }
 
-    /**
-     * @param {string} text 
-     */
-    #sendRaw (text) {
+    #sendRaw (text: string) {
         if (this.#controller != undefined) {
             this.#controller.enqueue(encoder.encode(text));
         }
@@ -58,17 +46,13 @@ class EventListener {
 
     close () {
         if (this.#stream != undefined) {
-            this.#controller.close();
+            this.#controller?.close();
             this.#controller = undefined;
             this.#stream = undefined;
         }
     }
 
-    /**
-     * @param {string | undefined} event 
-     * @param {string} data 
-     */
-    emitEvent (event, data) {
+    emitEvent (event: string | undefined, data: string) {
         if (event) {
             this.#sendRaw(`event: ${event}\r\n`);
         }
@@ -79,25 +63,17 @@ class EventListener {
     }
 }
 
-/** @type {Map<string, EventListener>} */
-const listeners = new Map();
+const listeners: Map<string, EventListener> = new Map();
 
-/**
- * @param {string} uid 
- */
-const unregisterListener = (uid) => {
+const unregisterListener = (uid: string) => {
     if (listeners.has(uid)) {
         listeners.delete(uid);
     }
 };
 
-/**
- * @param {string} uid 
- * @returns {Response | undefined}
- */
-export const startListen = (uid) => {
+export const startListen = (uid: string): Response | undefined => {
     if (listeners.has(uid)) {
-        listeners.get(uid).close();
+        listeners.get(uid)?.close();
         listeners.delete(uid);
     }
     const lst = new EventListener(uid);
@@ -107,27 +83,17 @@ export const startListen = (uid) => {
     });
 };
 
-/**
- * @param {string} uid 
- * @returns {boolean}
- */
-export const pingListener = (uid) => {
+export const pingListener = (uid: string): boolean => {
     if (listeners.has(uid)) {
-        listeners.get(uid).pingKeeplive();
+        listeners.get(uid)?.pingKeeplive();
         return true;
     }
     return false;
 };
 
-/**
- * @param {string} uid 
- * @param {string | undefined} event 
- * @param {string} data 
- * @returns {boolean}
- */
-export const emitEvent = (uid, event, data) => {
+export const emitEvent = (uid: string, event: string | undefined, data: string): boolean => {
     if (listeners.has(uid)) {
-        listeners.get(uid).emitEvent(event, data);
+        listeners.get(uid)?.emitEvent(event, data);
         return true;
     }
     return false;

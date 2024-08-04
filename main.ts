@@ -1,4 +1,4 @@
-import { startListen, pingListener, emitEvent, startKeepliveTask } from "./listeners.js";
+import { startListen, pingListener, emitEvent, startKeepliveTask } from "./listeners.ts";
 
 const PORT = 18969;
 const FIELD_CONTENT_MAX_LENGTH = 16384;
@@ -6,7 +6,7 @@ const FIELD_CONTENT_MAX_LENGTH = 16384;
 await Deno.permissions.request({ name: "net", host: `0.0.0.0:${PORT}` });
 await Deno.permissions.request({ name: "read", path: "./index.html" });
 
-const response = (code = 200, data = null) => {
+const response = (code = 200, data = "") => {
     if (typeof (data) !== "string") {
         switch (code) {
             case 200: data = "Ok"; break;
@@ -27,10 +27,7 @@ const response = (code = 200, data = null) => {
     );
 };
 
-/** handler
- * @type {Deno.ServeHandler} 
- */
-const handler = async (req, _) => {
+const handler: Deno.ServeHandler = async (req, _) => {
     const url = new URL(req.url);
     const path = url.pathname;
     if (req.method.toUpperCase() === "POST") {
@@ -83,11 +80,12 @@ const handler = async (req, _) => {
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": req.headers.get("Access-Control-Request-Headers"),
+                "Access-Control-Allow-Headers": req.headers.get("Access-Control-Request-Headers") ?? "*",
                 "Access-Control-Max-Age": "86400",
             }
         });
     }
+    return response(404);
 };
 
 if (import.meta.main) {
