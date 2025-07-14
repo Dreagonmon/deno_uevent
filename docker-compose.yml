@@ -1,0 +1,13 @@
+version: '2.0'
+services:
+  uevent:
+    build: .
+    restart: unless-stopped
+    mem_limit: 128m
+    ports:
+      - "127.0.0.1:18969:18969"
+    logging:
+        driver: "json-file"
+        options:
+            max-file: "2"
+            max-size: "10m"
